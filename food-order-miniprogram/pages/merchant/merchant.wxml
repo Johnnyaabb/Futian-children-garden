@@ -1,0 +1,195 @@
+<!-- pages/merchant/merchant.wxml -->
+<view class="page">
+
+  <!-- 顶部 Header -->
+  <view class="header">
+    <view class="header-info">
+      <text class="shop-name">🍳 时间餐厅（商家端）</text>
+      <text class="header-date">{{today}}</text>
+    </view>
+  </view>
+
+  <!-- Tab 切换 -->
+  <view class="tab-bar">
+    <view
+      class="tab-item {{activeTab === 'dishes' ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="dishes"
+    >今日菜品 ({{todayDishes.length}})</view>
+    <view
+      class="tab-item {{activeTab === 'orders' ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="orders"
+    >订单管理 ({{orders.length}})</view>
+  </view>
+
+  <!-- 菜品管理 Tab -->
+  <block wx:if="{{activeTab === 'dishes'}}">
+
+    <!-- 菜品列表 -->
+    <view class="dish-list" wx:if="{{todayDishes.length > 0}}">
+      <view class="dish-manage-card card" wx:for="{{todayDishes}}" wx:key="dishId">
+
+        <image class="dish-thumb" src="{{item.imageUrl}}" mode="aspectFill"/>
+
+        <view class="dish-content">
+          <view class="dish-top">
+            <text class="dish-name">{{item.name}}</text>
+            <switch
+              class="avail-switch"
+              checked="{{item.isAvailable}}"
+              color="#FF6B35"
+              bindchange="onToggleAvailable"
+              data-dishid="{{item.dishId}}"
+            />
+          </view>
+          <text class="dish-cat-price">{{item.category}} · ¥{{item.price / 100}}</text>
+          <text class="dish-stock">库存 {{item.stock}} 份 · 已售 {{item.soldCount}} 份</text>
+          <view class="dish-actions">
+            <view class="action-btn edit" bindtap="onEditDish" data-dish="{{item}}">编辑</view>
+            <view class="action-btn delete" bindtap="onDeleteDish" data-dishid="{{item.dishId}}">删除</view>
+            <view class="unavail-tag" wx:if="{{!item.isAvailable}}">已下架</view>
+            <view class="avail-tag" wx:else>上架中</view>
+          </view>
+        </view>
+
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:else>
+      <text style="font-size:80rpx;">📋</text>
+      <text>今日还未上传菜品</text>
+      <text style="font-size:24rpx;color:#ccc;margin-top:8rpx;">点击下方按钮添加今日菜品</text>
+    </view>
+
+    <!-- 添加菜品按钮 -->
+    <view class="fab" bindtap="onAddDish">
+      <text class="fab-icon">+</text>
+      <text class="fab-text">上传菜品</text>
+    </view>
+
+  </block>
+
+  <!-- 订单管理 Tab -->
+  <block wx:if="{{activeTab === 'orders'}}">
+    <view class="order-list" wx:if="{{orders.length > 0}}">
+      <view class="order-card card" wx:for="{{orders}}" wx:key="orderId">
+
+        <view class="order-header">
+          <text class="order-no">订单 #{{item.orderNo}}</text>
+          <text class="order-status" style="color:{{statusColorMap[item.status]}}">
+            {{statusMap[item.status]}}
+          </text>
+        </view>
+
+        <view class="order-items-preview">
+          <text wx:for="{{item.items}}" wx:for-item="dish" wx:key="dishId">
+            {{dish.name}} x{{dish.quantity}}
+          </text>
+        </view>
+
+        <view class="order-meta">
+          <text class="order-addr">📍 {{item.address.detail}}</text>
+          <text class="order-total">¥{{item.total / 100}}</text>
+        </view>
+
+        <text class="order-time">{{item.createdAt}}</text>
+        <text class="order-remark" wx:if="{{item.remark}}">备注：{{item.remark}}</text>
+
+        <view class="order-actions">
+          <view
+            class="action-btn accept"
+            wx:if="{{item.status === 'paid'}}"
+            bindtap="onAcceptOrder"
+            data-orderid="{{item.orderId}}"
+          >接单</view>
+          <view
+            class="action-btn complete"
+            wx:if="{{item.status === 'confirmed' || item.status === 'preparing'}}"
+            bindtap="onCompleteOrder"
+            data-orderid="{{item.orderId}}"
+          >完成订单</view>
+          <view
+            class="action-btn detail"
+            bindtap="onViewOrderDetail"
+            data-orderid="{{item.orderId}}"
+          >查看详情</view>
+        </view>
+
+      </view>
+    </view>
+
+    <view class="empty-state" wx:else>
+      <text style="font-size:80rpx;">📦</text>
+      <text>暂无订单</text>
+    </view>
+  </block>
+
+  <!-- 底部占位 -->
+  <view style="height: 120rpx;"></view>
+
+</view>
+
+<!-- 添加/编辑菜品弹窗 -->
+<view class="modal-mask" wx:if="{{showForm}}" bindtap="onFormClose"></view>
+<view class="modal {{showForm ? 'show' : ''}}">
+
+  <view class="modal-header">
+    <text class="modal-title">{{editingDish ? '编辑菜品' : '上传今日菜品'}}</text>
+    <text class="modal-close" bindtap="onFormClose">✕</text>
+  </view>
+
+  <!-- 图片上传区 -->
+  <view class="img-upload" bindtap="onChooseImage">
+    <image wx:if="{{form.imageUrl}}" src="{{form.imageUrl}}" mode="aspectFill" class="upload-preview"/>
+    <view wx:else class="upload-placeholder">
+      <text class="upload-icon">📷</text>
+      <text class="upload-hint">点击上传菜品图片</text>
+    </view>
+  </view>
+
+  <!-- 表单字段 -->
+  <view class="form-group">
+    <text class="form-label">菜品名称 *</text>
+    <input class="form-input" placeholder="如：红烧肉" value="{{form.name}}" bindinput="onFormNameInput" maxlength="20"/>
+  </view>
+
+  <view class="form-group">
+    <text class="form-label">价格（元）*</text>
+    <input class="form-input" placeholder="如：38.00" value="{{form.price}}" bindinput="onFormPriceInput" type="digit"/>
+  </view>
+
+  <view class="form-group">
+    <text class="form-label">菜品分类</text>
+    <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+      <view class="form-picker">
+        <text>{{form.category}}</text>
+        <text class="picker-arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-group">
+    <text class="form-label">库存数量</text>
+    <input class="form-input" placeholder="默认999（不限）" value="{{form.stock}}" bindinput="onFormStockInput" type="number"/>
+  </view>
+
+  <view class="form-group">
+    <text class="form-label">菜品描述</text>
+    <textarea
+      class="form-textarea"
+      placeholder="简单描述食材、做法、口味..."
+      value="{{form.description}}"
+      bindinput="onFormDescInput"
+      maxlength="100"
+    />
+  </view>
+
+  <view class="modal-footer">
+    <view class="save-btn" bindtap="onSaveDish">
+      {{editingDish ? '保存修改' : '立即上架'}}
+    </view>
+  </view>
+
+</view>

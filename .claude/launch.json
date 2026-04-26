@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "food-order-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "3456", "food-order-miniprogram"],
+      "port": 3456
+    },
+    {
+      "name": "futian-app",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "3737", "."],
+      "port": 3737
+    }
+  ]
+}

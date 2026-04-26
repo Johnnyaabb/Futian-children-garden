@@ -1,0 +1,88 @@
+<!-- pages/home/home.wxml -->
+<view class="page">
+
+  <!-- 顶部日期横幅 -->
+  <view class="banner">
+    <view class="banner-date">{{today}} 今日菜单</view>
+    <view class="banner-sub">新鲜食材，每日更新</view>
+  </view>
+
+  <!-- 分类标签栏 -->
+  <scroll-view class="category-bar" scroll-x enable-flex>
+    <view
+      wx:for="{{categories}}"
+      wx:key="*this"
+      class="category-item {{item === activeCategory ? 'active' : ''}}"
+      bindtap="onCategoryTap"
+      data-category="{{item}}"
+    >{{item}}</view>
+  </scroll-view>
+
+  <!-- 菜品列表 -->
+  <view class="dish-list" wx:if="{{filteredDishes.length > 0}}">
+    <view class="dish-card card" wx:for="{{filteredDishes}}" wx:key="dishId">
+
+      <!-- 菜品图片 -->
+      <image class="dish-img" src="{{item.imageUrl}}" mode="aspectFill" lazy-load/>
+
+      <!-- 菜品信息 -->
+      <view class="dish-info">
+        <view class="dish-header">
+          <text class="dish-name">{{item.name}}</text>
+          <view class="tag">{{item.category}}</view>
+        </view>
+        <text class="dish-desc">{{item.description}}</text>
+
+        <view class="dish-footer">
+          <view class="dish-price-wrap">
+            <text class="price-unit">¥</text>
+            <text class="price-num">{{item.price / 100}}</text>
+          </view>
+
+          <!-- 库存提示 -->
+          <text class="stock-tip" wx:if="{{item.stock <= 5 && item.stock > 0}}">仅剩 {{item.stock}} 份</text>
+          <text class="stock-tip sold-out" wx:if="{{item.stock === 0}}">已售罄</text>
+
+          <!-- 加减按钮 -->
+          <view class="stepper" wx:if="{{item.stock !== 0}}">
+            <view
+              class="step-btn minus {{cartMap[item.dishId] ? '' : 'hidden'}}"
+              bindtap="onRemoveFromCart"
+              data-dishid="{{item.dishId}}"
+            >−</view>
+            <text class="step-qty {{cartMap[item.dishId] ? '' : 'hidden'}}">{{cartMap[item.dishId] || 0}}</text>
+            <view
+              class="step-btn plus"
+              bindtap="onAddToCart"
+              data-dish="{{item}}"
+            >+</view>
+          </view>
+        </view>
+      </view>
+
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">🍽️</text>
+    <text>今日暂无菜品，请稍后再看</text>
+  </view>
+
+  <!-- 底部购物车悬浮栏 -->
+  <view class="cart-bar {{cartCount > 0 ? 'visible' : ''}}" bindtap="onGoToCart">
+    <view class="cart-icon-wrap">
+      <text class="cart-icon">🛒</text>
+      <view class="cart-badge" wx:if="{{cartCount > 0}}">{{cartCount}}</view>
+    </view>
+    <text class="cart-bar-text">去购物车</text>
+    <view class="cart-bar-right">
+      <text class="cart-total">¥{{cartTotal}}</text>
+      <view class="cart-go-btn">去结算</view>
+    </view>
+  </view>
+
+  <!-- 底部占位（防被tabBar遮挡） -->
+  <view style="height: 180rpx;"></view>
+
+</view>
