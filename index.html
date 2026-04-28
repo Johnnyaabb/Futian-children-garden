@@ -1143,12 +1143,12 @@ function App(){
       </div>
 
 
-      {/* === 城市POI分析模块 === */}
+      {/* === 城市服务设施模块 === */}
       <div style={{padding:"10px 16px 6px"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:poiModuleOpen?10:0,cursor:"pointer"}} onClick={()=>setPoiModuleOpen(v=>!v)}>
           <span style={{fontSize:13}}>🏙</span>
-          <span style={{fontSize:12,fontWeight:700,color:"#111",flex:1}}>城市POI分析</span>
-          <span style={{fontSize:10,color:"#aaa"}}>City POI</span>
+          <span style={{fontSize:12,fontWeight:700,color:"#111",flex:1}}>城市服务设施</span>
+          <span style={{fontSize:10,color:"#aaa"}}>City Services</span>
           <span style={{fontSize:11,color:"#bbb",marginLeft:4}}>{poiModuleOpen?"▲":"▼"}</span>
         </div>
         {poiModuleOpen&&(()=>{
