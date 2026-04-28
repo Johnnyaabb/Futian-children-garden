@@ -1187,8 +1187,8 @@ function App(){
               <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
                 {POI_CATS.map((cat,i)=>{
                   const on=activePOICats.includes(i);
-                  return <button key={cat.key} onClick={()=>{setShowPOILayer(true);setActivePOICats(prev=>on&&prev.length>1?prev.filter(x=>x!==i):[...new Set([...prev,i])]);}} style={{display:"flex",alignItems:"center",gap:3,padding:"3px 7px",borderRadius:6,border:`1.5px solid ${on?cat.color:"#ddd"}`,background:on?cat.color+"18":"#fafafa",cursor:"pointer",fontSize:10,color:on?cat.color:"#aaa",fontWeight:on?600:400,transition:"all .15s"}}>
-                    <span>{cat.icon}</span><span>{cat.key.replace("教育设施","").replace("科普教育空间","文化").replace("与照护设施","医疗").replace("与生活服务","商业")}</span>
+                  return <button key={cat.key} onClick={()=>{setShowPOILayer(true);setActivePOICats(prev=>on&&prev.length>1?prev.filter(x=>x!==i):[...new Set([...prev,i])]);}} style={{display:"flex",alignItems:"center",gap:2,padding:"3px 6px",borderRadius:6,border:`1.5px solid ${on?cat.color:"#ddd"}`,background:on?cat.color+"18":"#fafafa",cursor:"pointer",fontSize:9,color:on?cat.color:"#aaa",fontWeight:on?600:400,transition:"all .15s",lineHeight:1.3}}>
+                    <span>{cat.icon}</span><span>{cat.key}</span>
                   </button>;
                 })}
                 <button onClick={()=>{setShowPOILayer(v=>!v);}} style={{padding:"3px 7px",borderRadius:6,border:`1.5px solid ${showPOILayer?"#2196F3":"#ddd"}`,background:showPOILayer?"#e3f2fd":"#fafafa",cursor:"pointer",fontSize:10,color:showPOILayer?"#2196F3":"#aaa",fontWeight:showPOILayer?600:400}}>
