@@ -9,8 +9,8 @@
     },
     {
       "name": "futian-app",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-p", "3737", "."],
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["server.py"],
       "port": 3737
     }
   ]

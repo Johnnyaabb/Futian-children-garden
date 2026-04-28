@@ -231,6 +231,11 @@ function App(){
   const heatLayerRef=useRef(null);
   const [showPOILayer,setShowPOILayer]=useState(false);
   const [showParks,setShowParks]=useState(true);
+  const [poiSearch,setPoiSearch]=useState("");
+  const [poiSearchResults,setPoiSearchResults]=useState([]);
+  const [poiSearching,setPoiSearching]=useState(false);
+  const poiSearchLayerRef=useRef(null);
+  const poiSearchTimer=useRef(null);
   const [activePOICats,setActivePOICats]=useState([0,1,2,3]);
   const poiLayerRef=useRef(null);
   const [msgs,setMsgs]=useState([{role:"agent",text:"👋 你好！我是 Space Agent，由 Gemini 驱动。\n\n已加载福田区 160 个儿童友好空间。\n\n可以问任何关于福田儿童友好空间的问题，例如：\n• 「园岭街道有哪些公园？」\n• 「面积最大的公园」\n• 「去[公园名称]」\n• 「哪个街道公园最多？」"}]);
@@ -451,6 +456,41 @@ function App(){
       poiLayerRef.current.addLayer(marker);
     });
   },[showPOILayer,activePOICats]);
+
+  // POI keyword search effect
+  useEffect(()=>{
+    const map=mapRef.current; if(!map) return;
+    if(!poiSearchLayerRef.current) poiSearchLayerRef.current=L.layerGroup().addTo(map);
+    poiSearchLayerRef.current.clearLayers();
+    if(poiSearchResults.length===0) return;
+    poiSearchResults.forEach(r=>{
+      L.circleMarker([r.lat,r.lng],{
+        radius:6, color:"#9C27B0", fillColor:"#9C27B0",
+        fillOpacity:0.9, weight:1.5
+      }).bindPopup(`<div style="min-width:160px"><div style="font-weight:700;font-size:12px;margin-bottom:3px">${r.name}</div><div style="font-size:10px;color:#666;margin-bottom:3px">${r.addr||""}</div><div style="font-size:10px;color:#9C27B0">${r.type} · ${r.cat}</div></div>`,{maxWidth:240})
+        .addTo(poiSearchLayerRef.current);
+    });
+    // 自动缩放到结果范围
+    if(poiSearchResults.length>0){
+      const lats=poiSearchResults.map(r=>r.lat), lngs=poiSearchResults.map(r=>r.lng);
+      map.fitBounds([[Math.min(...lats),Math.min(...lngs)],[Math.max(...lats),Math.max(...lngs)]],{padding:[40,40],maxZoom:16});
+    }
+  },[poiSearchResults]);
+
+  const handlePoiSearch=(val)=>{
+    setPoiSearch(val);
+    clearTimeout(poiSearchTimer.current);
+    if(!val.trim()){setPoiSearchResults([]);return;}
+    poiSearchTimer.current=setTimeout(async()=>{
+      setPoiSearching(true);
+      try{
+        const res=await fetch(`/api/poi/search?q=${encodeURIComponent(val.trim())}&limit=200`);
+        const data=await res.json();
+        setPoiSearchResults(data);
+      }catch(e){setPoiSearchResults([]);}
+      setPoiSearching(false);
+    },400);
+  };
 
   // Auto-play 24h animation
   useEffect(()=>{
@@ -1183,6 +1223,25 @@ function App(){
 
           return (
             <div>
+              {/* 搜索框 */}
+              <div style={{marginBottom:8}}>
+                <div style={{display:"flex",alignItems:"center",background:"#f5f5f7",borderRadius:8,padding:"5px 10px",gap:6,border:"1.5px solid",borderColor:poiSearch?"#9C27B0":"transparent",transition:"border-color .2s"}}>
+                  <span style={{fontSize:13}}>🔍</span>
+                  <input
+                    value={poiSearch}
+                    onChange={e=>handlePoiSearch(e.target.value)}
+                    placeholder="搜索POI数据库，如：咖啡、地铁、银行…"
+                    style={{flex:1,border:"none",background:"transparent",outline:"none",fontSize:11,color:"#333"}}
+                  />
+                  {poiSearching&&<span style={{fontSize:10,color:"#9C27B0"}}>⏳</span>}
+                  {poiSearch&&!poiSearching&&<span onClick={()=>{setPoiSearch("");setPoiSearchResults([]);}} style={{cursor:"pointer",color:"#bbb",fontSize:13,lineHeight:1}}>✕</span>}
+                </div>
+                {poiSearchResults.length>0&&(
+                  <div style={{marginTop:5,fontSize:10,color:"#9C27B0",fontWeight:600,padding:"3px 6px",background:"#F3E8FF",borderRadius:6,display:"inline-block"}}>
+                    🔍 找到 {poiSearchResults.length} 个结果，已标注在地图上
+                  </div>
+                )}
+              </div>
               {/* 类别开关 */}
               <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
                 {POI_CATS.map((cat,i)=>{
