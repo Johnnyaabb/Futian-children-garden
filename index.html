@@ -783,24 +783,7 @@ function App(){
         <div style={{fontSize:10,color:"#aaa",letterSpacing:.2}}>{lang==="zh"?"Futian Child-Friendly Space Intelligence":""}{lang==="zh"?" · ":""}{PARKS_RAW.length} {t.appSub}</div>
       </div>
     </div>
-    {/* Top stats badge */}
-    <div style={{position:"absolute",top:12,left:"50%",transform:"translateX(-50%)",zIndex:1000,background:"rgba(255,255,255,.96)",backdropFilter:"blur(16px)",borderRadius:20,padding:"0 6px",boxShadow:"0 2px 14px rgba(0,0,0,.10)",display:"flex",alignItems:"center",height:44,whiteSpace:"nowrap"}}>
-      {[
-        {icon:"🗺",val:stats.count+"",unit:t.statSites,color:"#2E7D32"},
-        {icon:"⬛",val:stats.totalArea.toLocaleString(),unit:t.statArea,color:"#1565C0"},
-        {icon:TRANSPORT[transport].icon,val:radiusKm.toFixed(1),unit:t.statRadius,color:tColor}
-      ].map((item,i)=>(
-        <React.Fragment key={i}>
-          {i>0&&<div style={{width:1,height:20,background:"#E8E8E8",margin:"0 2px"}}/>}
-          <div style={{display:"flex",alignItems:"center",gap:5,padding:"0 10px"}}>
-            <span style={{fontSize:14}}>{item.icon}</span>
-            <span style={{fontSize:13,fontWeight:700,color:item.color}}>{item.val}</span>
-            <span style={{fontSize:10,color:"#aaa"}}>{item.unit}</span>
-          </div>
-        </React.Fragment>
-      ))}
-      {filterStreet&&<><div style={{width:1,height:20,background:"#E8E8E8",margin:"0 2px"}}/><div style={{padding:"0 10px"}}><span style={{background:STREET_COLORS[filterStreet],color:"#fff",borderRadius:8,padding:"2px 8px",fontSize:11,fontWeight:600}}>{filterStreet}</span></div></>}
-    </div>
+
     {/* Map controls — unified card */}
     <div style={{position:"absolute",top:12,right:14,zIndex:1000,background:"rgba(255,255,255,.96)",backdropFilter:"blur(16px)",borderRadius:12,padding:"6px 8px",boxShadow:"0 2px 14px rgba(0,0,0,.10)",display:"flex",alignItems:"center",gap:2}}>
       {MAP_STYLES.map(s=>(
