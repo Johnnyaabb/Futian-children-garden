@@ -634,7 +634,7 @@ function App(){
 
   useEffect(()=>{chatEndRef.current?.scrollIntoView({behavior:"smooth"});},[msgs,typing]);
 
-  const GEMINI_KEY="AIzaSyB-0XyOBlcP17i3Oxka3qJXXKmqa7PD7bg";
+  const GEMINI_KEY=window.GEMINI_API_KEY||"";
   const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
 
   const handleSend=async()=>{
